@@ -69,12 +69,12 @@ def _sqlc_package_impl(ctx):
     )
 
     # TODO(V2) Investigate direct compilation by embedding a go_library rule
-    return struct(providers = [
+    return [
         DefaultInfo(
             files = depset(outputs),
             runfiles = ctx.runfiles(outputs),  # For tests
         ),
-    ])
+    ]
 
 sqlc_package = rule(
     _sqlc_package_impl,

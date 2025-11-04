@@ -13,10 +13,6 @@
 # limitations under the License.
 
 load(
-    "//sqlc/private/rules_go/lib:platforms.bzl",
-    "generate_toolchain_names",
-)
-load(
     "@com_plezentek_rules_sqlc//sqlc/private/skylib/lib:versions.bzl",
     "versions",
 )
@@ -25,6 +21,10 @@ load(
     "DEFAULT_VERSION",
     "MIN_SUPPORTED_VERSION",
     "SQLC_VERSIONS",
+)
+load(
+    "//sqlc/private/rules_go/lib:platforms.bzl",
+    "generate_toolchain_names",
 )
 
 ##### Download SQLC binary #####
@@ -47,7 +47,7 @@ def _detect_host_platform(ctx):
         uname = arch_result.stdout.strip()
         if uname in ("aarch64", "arm64"):
             goarch = "arm64"
-        if uname in ("armv6l", "armv7l"):
+        elif uname in ("armv6l", "armv7l"):
             goarch = "arm"
         elif uname in ("amd64", "x86_64"):
             goarch = "amd64"
@@ -124,6 +124,20 @@ def _sqlc_download_release_impl(ctx):
         },
     )
 
+    # For bzlmod the toolchain registration is hardcoded in the MODULE.bazel file. Since we can't dynamically add more
+    # toolchains, usually this is done by using a "hub" repo where we `register_toolchains("@hub//:all")` and then
+    # generate the "hub" repo in a separate repository rule.
+    # The simplest way would be to set up a bunch of aliases, however https://github.com/bazelbuild/bazel/issues/16298
+    # tells us that doesn't work, so we set up this intermediate macro for the "hub" to call.
+    ctx.file("toolchains.bzl", """
+load("@com_plezentek_rules_sqlc//sqlc:def.bzl", "declare_toolchains")
+def bzlmod_declare_toolchains():
+    declare_toolchains(
+        host ="{goos}_{goarch}",
+        release = Label("//:sqlc_release")
+    )
+""".format(goos = goos, goarch = goarch))
+
     # Get the binary tool
     ctx.report_progress("downloading")
     ctx.download_and_extract(
@@ -140,6 +154,9 @@ _sqlc_download_release = repository_rule(
         "version": attr.string(),
     },
 )
+
+def sqlc_download_release_bzlmod(name, **kwargs):
+    _sqlc_download_release(name = name, **kwargs)
 
 def sqlc_download_release(name, **kwargs):
     _sqlc_download_release(name = name, **kwargs)

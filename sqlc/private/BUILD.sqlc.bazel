@@ -27,6 +27,7 @@ sqlc_release(
     root_file = "ROOT",
     sqlc = "sqlc{exe}",
     version = "{version}",
+    visibility = ["//visibility:public"],
 )
 
 declare_toolchains(

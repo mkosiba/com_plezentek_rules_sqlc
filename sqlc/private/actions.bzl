@@ -64,7 +64,7 @@ def sqlc_configure(ctx, params, queries, schemas, out, config_path_depth):
                 ))
 
     if versions.is_at_least("1.5.0", toolchain_version):
-        config = struct(
+        config = json.encode(struct(
             version = "1",
             overrides = overrides,
             packages = [struct(
@@ -80,9 +80,9 @@ def sqlc_configure(ctx, params, queries, schemas, out, config_path_depth):
                 queries = ["{}/{}".format(back_to_root, p) for p in queries],
                 schema = ["{}/{}".format(back_to_root, p) for p in schemas],
             )],
-        ).to_json()
+        ))
     else:
-        config = struct(
+        config = json.encode(struct(
             version = "1",
             overrides = overrides,
             packages = [struct(
@@ -97,7 +97,7 @@ def sqlc_configure(ctx, params, queries, schemas, out, config_path_depth):
                 queries = ["{}/{}".format(back_to_root, p) for p in queries],
                 schema = ["{}/{}".format(back_to_root, p) for p in schemas],
             )],
-        ).to_json()
+        ))
 
     ctx.actions.write(out, config)
 

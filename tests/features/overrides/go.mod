@@ -19,4 +19,5 @@ go 1.13
 require (
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/google/uuid v1.1.2
+	github.com/tabbed/pqtype v0.1.1
 )

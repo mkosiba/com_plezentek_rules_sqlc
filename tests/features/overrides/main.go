@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/tabbed/pqtype" // needed for generated code
 )
 
 func main() {

@@ -59,7 +59,7 @@ sqlc_toolchain = rule(
 def declare_toolchains(host, release):
     host_goos, _, host_goarch = host.partition("_")
     for p in PLATFORMS:
-        toolchain_name = "sqlc_" + p.name
+        toolchain_name = "sqlc_" + p.name + "_" + host
         impl_name = toolchain_name + "-impl"
 
         cgo_constraints = (
